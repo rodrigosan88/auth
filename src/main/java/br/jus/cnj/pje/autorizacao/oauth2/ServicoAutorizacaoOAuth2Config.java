@@ -41,11 +41,11 @@ public class ServicoAutorizacaoOAuth2Config extends AuthorizationServerConfigure
     public void configure(ClientDetailsServiceConfigurer clients) 
       throws Exception {
         clients.jdbc(this.dataSource)
-        	.withClient("auth_client")
+/*        	.withClient("auth_client")
             .authorizedGrantTypes("password", "authorization_code", "refresh_token", "implicit")
             .authorities("ROLE_CLIENT", "ROLE_TRUSTED_CLIENT")
             .scopes("read", "write", "trust")
-            .secret("secret");
+            .secret("secret")*/;
     }
  
     @Override

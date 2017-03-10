@@ -23,7 +23,7 @@ public class AutorizacaoResource extends ResourceServerConfigurerAdapter{
 		http
 			.authorizeRequests()
 			.antMatchers("/recuperarUsuario/**")
-			.permitAll()
+			.authenticated()
 			.and()
 			.exceptionHandling()
 			.accessDeniedHandler(new OAuth2AccessDeniedHandler());
