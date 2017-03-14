@@ -1,10 +1,15 @@
 package br.jus.cnj.pje.autorizacao.controller;
 
+import java.security.Principal;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -47,6 +52,17 @@ public class UsuarioRestController {
 		Usuario usuario = usuarioService.findUsuarioById(id);
 		
 		return ResponseEntity.ok(usuario);
+	}
+	
+	@RequestMapping({"/user", "/me"})
+	public Map<String, String> user(Principal principal){
+		Map<String, String> map = new LinkedHashMap<>();
+		String roles = SecurityContextHolder.getContext().getAuthentication().getAuthorities().toString();
+		
+		map.put("name", principal.getName());
+		map.put("roles", roles);
+		
+		return map;
 	}
 	
 }

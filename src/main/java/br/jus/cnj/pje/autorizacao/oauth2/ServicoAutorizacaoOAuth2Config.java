@@ -1,6 +1,5 @@
 package br.jus.cnj.pje.autorizacao.oauth2;
 
-import javax.annotation.Resource;
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +40,7 @@ public class ServicoAutorizacaoOAuth2Config extends AuthorizationServerConfigure
     public void configure(ClientDetailsServiceConfigurer clients) 
       throws Exception {
         clients.jdbc(this.dataSource)
-/*        	.withClient("auth_client")
+        	/*.withClient("pje")
             .authorizedGrantTypes("password", "authorization_code", "refresh_token", "implicit")
             .authorities("ROLE_CLIENT", "ROLE_TRUSTED_CLIENT")
             .scopes("read", "write", "trust")
