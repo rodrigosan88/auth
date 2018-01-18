@@ -3,6 +3,7 @@ package br.jus.cnj.pje.autorizacao;
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.security.oauth2.client.EnableOAuth2Sso;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -14,13 +15,18 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.provider.authentication.OAuth2AuthenticationManager;
+import org.springframework.security.oauth2.provider.authentication.OAuth2AuthenticationProcessingFilter;
+import org.springframework.security.oauth2.provider.token.ResourceServerTokenServices;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
 import br.jus.cnj.pje.autorizacao.jwt.AutenticacaoJWTEntryPoint;
 import br.jus.cnj.pje.autorizacao.jwt.AutenticacaoJWTFilter;
 
 @Configuration
 @EnableWebSecurity
+@EnableOAuth2Sso
 public class AutorizacaoConfig extends WebSecurityConfigurerAdapter{
 
 	@Autowired
@@ -28,6 +34,9 @@ public class AutorizacaoConfig extends WebSecurityConfigurerAdapter{
 	
 	@Autowired
 	private AutenticacaoJWTEntryPoint entryPoint;
+	
+	@Autowired
+	private ResourceServerTokenServices resourceServerTokenServices;
 	
 	@Autowired
 	public void configurarAutenticacao(AuthenticationManagerBuilder aut) throws Exception{
@@ -59,10 +68,12 @@ public class AutorizacaoConfig extends WebSecurityConfigurerAdapter{
         .antMatchers("/validar/**").permitAll()
         .antMatchers("/criarUsuario/**").permitAll()
         .antMatchers("/oauth/token/**").permitAll()
+        .antMatchers("/oauth/authorize/**").permitAll()
         .anyRequest().authenticated()
         .and().formLogin().permitAll();		
 		
         http.addFilterBefore(addAutenticacaoJWTFilter(), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(this.addOAuth2AuthenticationProcessingFilter(), BasicAuthenticationFilter.class);
 	}
 	
 	private String getUsersByUsernameQuery(){
@@ -89,6 +100,26 @@ public class AutorizacaoConfig extends WebSecurityConfigurerAdapter{
 	@Bean
 	public AutenticacaoJWTFilter addAutenticacaoJWTFilter(){
 		return new AutenticacaoJWTFilter();
+	}
+	
+	@Bean
+	public OAuth2AuthenticationProcessingFilter addOAuth2AuthenticationProcessingFilter(){
+		OAuth2AuthenticationProcessingFilter filter = new OAuth2AuthenticationProcessingFilter();
+		
+		try {
+			filter.setAuthenticationManager(getOAuth2AuthenticationManager());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return filter;
+	}
+	
+	private OAuth2AuthenticationManager getOAuth2AuthenticationManager(){
+		OAuth2AuthenticationManager manager = new OAuth2AuthenticationManager();
+		manager.setTokenServices(resourceServerTokenServices);
+		
+		return manager;
 	}
 	
 //	@Override
